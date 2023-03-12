@@ -1,11 +1,29 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface IcalculatorState {
-  items: { display: string; upperDisplay: string; operand: boolean; operandValue: string };
+  items: {
+    display: string;
+    leftValue: string;
+    binaryOperatorValue: string;
+    rightValue: string;
+    usedStatus: boolean;
+    upperDisplay: string;
+    firstLoad: boolean;
+    equalUsed: boolean;
+  };
 }
 
 const initialState: IcalculatorState = {
-  items: { display: '0', upperDisplay: '', operand: false, operandValue: '' },
+  items: {
+    display: '0',
+    leftValue: '',
+    binaryOperatorValue: '',
+    rightValue: '',
+    usedStatus: false,
+    upperDisplay: '',
+    firstLoad: true,
+    equalUsed: false,
+  },
 };
 
 export const calculatorSlice = createSlice({
@@ -13,171 +31,153 @@ export const calculatorSlice = createSlice({
   initialState,
   reducers: {
     displayAction: (state, action: PayloadAction<string>) => {
-      if (action.payload === ',' && state.items.display.length < 1) return;
-      if (state.items.operand) {
+      if (state.items.equalUsed) {
+        state.items.upperDisplay = '';
+        state.items.leftValue = '';
+        state.items.rightValue = '';
+        state.items.binaryOperatorValue = '';
+        state.items.equalUsed = false;
+      }
+      if (state.items.usedStatus) {
+        state.items.display = action.payload === '.' ? '0.' : '';
+        state.items.usedStatus = false;
+      }
+      if (state.items.firstLoad && action.payload === '0' && state.items.display === '0') {
+        return;
+      }
+      if (
+        (state.items.display.includes('.') || state.items.display === '') &&
+        action.payload === '.'
+      ) {
+        return;
+      }
+      if (state.items.display === '0' && action.payload !== '.') {
         state.items.display = '';
-        state.items.operand = false;
       }
-      if (state.items.display === '0' && action.payload !== ',') {
-        state.items.display = action.payload;
-      } else {
-        if (action.payload === ',' && state.items.display.includes(',')) {
-          state.items.display = state.items.display;
-        } else if (state.items.display.length < String(Number.MAX_SAFE_INTEGER).length) {
-          if (state.items.display === 'Не определено') {
-            state.items.display = '';
-          } else if (state.items.upperDisplay.includes('=')) {
-            state.items.upperDisplay = '';
-            state.items.display = '';
-          }
-          state.items.display += action.payload;
-        }
-      }
-      if (['+', '-', '*', '/'].includes(state.items.upperDisplay.slice(-1))) {
-        state.items.operandValue = state.items.upperDisplay.slice(-1) + ' ' + state.items.display;
+      if (state.items.display.length <= 17) {
+        state.items.display += action.payload;
       }
     },
     operandAction: (state, action: PayloadAction<string>) => {
-      // if (state.items.display === '0' && action.payload === '/') {
-      //   state.items.display = 'Не определено';
-      //   state.items.upperDisplay = '';
-      //   state.items.operand = false;
-      // }
       if (state.items.display === 'Не определено') {
         return;
       }
-      if (action.payload !== '=' && state.items.upperDisplay.includes('=')) {
-        state.items.upperDisplay = state.items.display;
-      }
-
-      if (state.items.display.includes(',') || state.items.upperDisplay.includes(',')) {
-        state.items.display = state.items.display;
-        state.items.upperDisplay = state.items.upperDisplay;
-      }
-
-      if (
-        ['+', '-', '*', '/', '='].includes(state.items.upperDisplay.slice(-1)) &&
-        !state.items.operand
-      ) {
-        if (action.payload === '=') {
-          if (state.items.upperDisplay.includes('=')) {
-            state.items.upperDisplay = `${String(
-              state.items.display + ' ' + state.items.operandValue,
-            )} =`;
-          } else {
-            state.items.upperDisplay = `${String(
-              state.items.upperDisplay.slice(0, -1) + ' ' + state.items.operandValue,
-            )} =`;
-          }
-        } else {
-          console.log('this?');
-          switch (state.items.upperDisplay.slice(-1)) {
-            case '+':
-              state.items.upperDisplay = `${String(
-                Math.round(
-                  (+state.items.upperDisplay.replace('+', '') + +state.items.display) * 1e15,
-                ) / 1e15,
-              )} ${action.payload}`;
-              break;
-            case '*':
-              state.items.upperDisplay = `${String(
-                Math.round(
-                  +state.items.upperDisplay.replace('*', '') * +state.items.display * 1e15,
-                ) / 1e15,
-              )} ${action.payload}`;
-              break;
-            case '-':
-              state.items.upperDisplay = `${String(
-                Math.round(
-                  (+state.items.upperDisplay.slice(0, -1) - +state.items.display.replace('-', '')) *
-                    1e15,
-                ) / 1e15,
-              )} ${action.payload}`;
-              break;
-            case '/':
-              if (+state.items.display === 0) {
-                state.items.upperDisplay = '';
-                state.items.operand = false;
-                state.items.display = 'Не определено';
-                return;
-              }
-              state.items.upperDisplay = `${String(
-                Math.round(
-                  (+state.items.upperDisplay.replace('/', '') / +state.items.display) * 1e15,
-                ) / 1e15,
-              )} ${action.payload}`;
-              break;
-            case '=':
-              state.items.operandValue = state.items.display;
-              console.log('otrab');
-              break;
-          }
-        }
-        if (action.payload === '-') {
-          state.items.display = state.items.upperDisplay.startsWith('-')
-            ? `-${state.items.upperDisplay.replaceAll(state.items.upperDisplay.slice(-1), '')}`
-            : `${state.items.upperDisplay.replaceAll(state.items.upperDisplay.slice(-1), '')}`;
-        } else if (action.payload === '=') {
-          switch (state.items.operandValue.slice(0, 1)) {
-            case '/':
-              if (+state.items.display === 0) {
-                state.items.upperDisplay = '';
-                state.items.operand = false;
-                state.items.display = 'Не определено';
-                return;
-              }
-              state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') /
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              );
-              break;
-            case '*':
-              state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') *
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              );
-              break;
-            case '-':
-              state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') -
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              );
-              break;
-            case '+':
-              state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') +
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              );
-              break;
-          }
-        } else {
-          state.items.display = state.items.upperDisplay.replace(
-            state.items.upperDisplay.slice(-1),
-            '',
-          );
-        }
-
-        state.items.operand = true;
-      } else {
-        state.items.upperDisplay = `${state.items.display} ${action.payload}`;
-        state.items.operand = true;
-        state.items.display = state.items.display;
-      }
       if (action.payload === '=') {
-        state.items.operand = false;
+        state.items.equalUsed = true;
       }
-      if (
-        +state.items.display > Number.MAX_SAFE_INTEGER ||
-        +state.items.display < -Number.MAX_SAFE_INTEGER
-      ) {
+      if (action.payload !== '=' && state.items.equalUsed) {
+        state.items.leftValue = state.items.display;
+        state.items.rightValue = '';
+        state.items.equalUsed = false;
+      }
+      if (state.items.usedStatus === true && action.payload !== '=') {
+        state.items.upperDisplay = state.items.leftValue + ' ' + action.payload;
+        state.items.binaryOperatorValue = action.payload;
+        return;
+      }
+      if (['-', '+', '/', '*', '='].includes(action.payload)) {
+        if (state.items.leftValue === '') {
+          state.items.leftValue = state.items.display;
+        } else {
+          if (state.items.equalUsed && state.items.rightValue !== '') {
+          } else {
+            state.items.rightValue = state.items.display;
+          }
+        }
+
+        if (state.items.binaryOperatorValue === '') {
+          state.items.binaryOperatorValue = action.payload;
+        }
+
+        state.items.usedStatus = true;
+
+        if (state.items.leftValue !== '' && state.items.rightValue !== '') {
+          switch (state.items.binaryOperatorValue) {
+            case '+':
+              if (state.items.equalUsed) {
+                state.items.upperDisplay =
+                  state.items.leftValue + ' + ' + state.items.rightValue + ' ' + '=';
+                state.items.leftValue = String(+state.items.leftValue + +state.items.rightValue);
+                break;
+              } else {
+                state.items.upperDisplay = String(
+                  +state.items.leftValue + +state.items.rightValue + ' ' + action.payload,
+                );
+                state.items.leftValue = String(+state.items.leftValue + +state.items.rightValue);
+                state.items.rightValue = '';
+                break;
+              }
+
+            case '-':
+              if (state.items.equalUsed) {
+                state.items.upperDisplay =
+                  state.items.leftValue + ' - ' + state.items.rightValue + ' ' + '=';
+                state.items.leftValue = String(+state.items.leftValue - +state.items.rightValue);
+                break;
+              } else {
+                state.items.upperDisplay = String(
+                  +state.items.leftValue - +state.items.rightValue + ' ' + action.payload,
+                );
+                state.items.leftValue = String(+state.items.leftValue - +state.items.rightValue);
+                state.items.rightValue = '';
+                break;
+              }
+            case '*':
+              if (state.items.equalUsed) {
+                state.items.upperDisplay =
+                  state.items.leftValue + ' * ' + state.items.rightValue + ' ' + '=';
+                state.items.leftValue = String(+state.items.leftValue * +state.items.rightValue);
+                break;
+              } else {
+                state.items.upperDisplay = String(
+                  +state.items.leftValue * +state.items.rightValue + ' ' + action.payload,
+                );
+                state.items.leftValue = String(+state.items.leftValue * +state.items.rightValue);
+                state.items.rightValue = '';
+                break;
+              }
+            case '/':
+              if (state.items.equalUsed) {
+                state.items.upperDisplay =
+                  state.items.leftValue + ' / ' + state.items.rightValue + ' ' + '=';
+                state.items.leftValue = String(+state.items.leftValue / +state.items.rightValue);
+                break;
+              } else {
+                state.items.upperDisplay = String(
+                  +state.items.leftValue / +state.items.rightValue + ' ' + action.payload,
+                );
+                state.items.leftValue = String(+state.items.leftValue / +state.items.rightValue);
+                state.items.rightValue = '';
+                break;
+              }
+          }
+          state.items.display = String(+state.items.leftValue);
+          if (action.payload !== '=') {
+            state.items.binaryOperatorValue = action.payload;
+          }
+        } else {
+          console.log('??');
+          state.items.upperDisplay = state.items.leftValue + ' ' + action.payload;
+        }
+      }
+      if (state.items.display === 'Infinity') {
         state.items.display = 'Не определено';
         state.items.upperDisplay = '';
-        state.items.operand = false;
+        state.items.leftValue = '';
+        state.items.rightValue = '';
+        state.items.binaryOperatorValue = '';
+        return;
       }
     },
     resetAction: (state) => {
       state.items.display = '0';
+      state.items.leftValue = '';
+      state.items.binaryOperatorValue = '';
+      state.items.rightValue = '';
+      state.items.usedStatus = false;
       state.items.upperDisplay = '';
+      state.items.firstLoad = true;
+      state.items.equalUsed = false;
     },
   },
 });
