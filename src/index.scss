@@ -21,7 +21,7 @@
   width: 695px;
   height: 640px;
   display: flex;
-  
+  user-select: none;
 
 
 .canvas {
@@ -34,6 +34,7 @@
 .sidebar {
   width: 50%;
  position: 'relative';
+ 
 .sidebar-content {
   margin-top: 106px;
   margin-left: 80px;
@@ -102,7 +103,7 @@ line-height: 44px;
 .result__runtime {
   font-size: 19px;
   line-height: 23px;
- 
+  user-select: text;
 }
 
 .sidebar-operators {

@@ -21,7 +21,9 @@ const Numbers: FC<DisplayProps> = ({ side }) => {
           const styles = arr === 0 ? { width: 152 } : {};
           return (
             <button
-              onClick={runtime ? () => dispatch(displayAction(String(arr))) : undefined}
+              onClick={
+                runtime ? () => dispatch(displayAction(String(arr).replace(',', '.'))) : undefined
+              }
               key={arr}
               style={styles}
               className={`${runtime ? 'action_active' : 'number_deactive'}`}>

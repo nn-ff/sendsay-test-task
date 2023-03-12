@@ -20,12 +20,12 @@ const Display: FC<DisplayProps> = ({ side }) => {
         className={`sidebar-display__content ${
           !runtime ? 'result__constructor' : 'result__runtime'
         }`}>
-        <div className="sidebar-display__upper">{upperDisplay}</div>
+        <div className="sidebar-display__upper">{upperDisplay.replaceAll('.', ',')}</div>
         <div
           className={`sidebar-display__result ${
             runtime ? (display.length > 17 ? 'result__lenght' : 'result__low') : ''
           }`}>
-          {display}
+          {display.replaceAll('.', ',')}
         </div>
       </div>
     </div>
