@@ -22,7 +22,7 @@
   height: 640px;
   display: flex;
   user-select: none;
-
+  overflow:hidden;
 
 .canvas {
   width: 50%;
@@ -314,7 +314,7 @@ color: #6B7280;
 .not_active {
   box-shadow: none;
 border-radius: none;
-opacity: 0.5;
+opacity: 0.4;
 }
 
 .not_active_constructor {
@@ -383,4 +383,15 @@ div[data-rbd-draggable-context-id="0"] {
   left: -5px;
   z-index: 5;
   top: -2px;
+}
+
+.drag-clone__constructor > div {
+  
+    opacity: 0.5;
+  box-shadow: none !important;
+  
+  
+}
+.hide__placeholder {
+  display: none;
 }

@@ -99,6 +99,7 @@ const App = () => {
     snapshot: DraggableStateSnapshot,
     side: string,
   ) {
+    if (!snapshot.isDragging) return;
     if (!snapshot.isDropAnimating) {
       return {
         ...style,
@@ -217,7 +218,7 @@ const App = () => {
                         </Draggable>
                       );
                     })}
-                    {provided.placeholder}
+                    <span className="hide__placeholder">{provided.placeholder}</span>
                   </div>
                 )}
               </Droppable>
@@ -270,36 +271,41 @@ const App = () => {
                           draggableId={obj.id}
                           index={index}>
                           {(provided, snapshot) => (
-                            <div
-                              onDoubleClick={!runtime ? () => onClickRemove(obj) : undefined}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              ref={provided.innerRef}
-                              style={getStyle(provided.draggableProps.style, snapshot, 'right')}>
-                              {React.cloneElement(obj.component, {
-                                draggable: obj.draggable,
-                                side: 'right',
-                              })}
-                              {dragStart && index === holder ? (
-                                <svg
-                                  className="draggable-holder"
-                                  width="250"
-                                  height="6"
-                                  viewBox="0 0 250 6"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg">
-                                  <path
-                                    d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM249.887 3L247 0.113249L244.113 3L247 5.88675L249.887 3ZM3 3.5H247V2.5H3V3.5Z"
-                                    fill="#5D5FEF"
-                                  />
-                                </svg>
-                              ) : null}
-                            </div>
+                            <>
+                              <div
+                                onDoubleClick={!runtime ? () => onClickRemove(obj) : undefined}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                ref={provided.innerRef}
+                                style={getStyle(provided.draggableProps.style, snapshot, 'right')}>
+                                {React.cloneElement(obj.component, {
+                                  draggable: obj.draggable,
+                                  side: 'right',
+                                })}
+                                {dragStart && index === holder ? (
+                                  <svg
+                                    className="draggable-holder"
+                                    width="250"
+                                    height="6"
+                                    viewBox="0 0 250 6"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                      d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM249.887 3L247 0.113249L244.113 3L247 5.88675L249.887 3ZM3 3.5H247V2.5H3V3.5Z"
+                                      fill="#5D5FEF"
+                                    />
+                                  </svg>
+                                ) : null}
+                              </div>
+                              {snapshot.isDragging && (
+                                <div className="drag-clone__constructor">{obj.component}</div>
+                              )}
+                            </>
                           )}
                         </Draggable>
                       );
                     })}
-                    {provided.placeholder}
+                    <span className="hide__placeholder">{provided.placeholder}</span>
                   </div>
                 )}
               </Droppable>
