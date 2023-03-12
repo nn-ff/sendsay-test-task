@@ -6,10 +6,11 @@ import { DisplayProps } from './Display';
 
 const Numbers: FC<DisplayProps> = ({ side }) => {
   const dispatch = useAppDispatch();
-  const numbersButtons = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0, ','];
   const item = useAppSelector((state) => state.constructorSlice.items);
   const runtime = useAppSelector((state) => state.runTimeSlice.items.runtime);
   const isDraggable = item.find((obj) => obj.id === 'numbers')?.draggable;
+
+  const numbersButtons = [7, 8, 9, 4, 5, 6, 1, 2, 3, 0, ','];
   const styleSide = side === 'right' ? 'right_side' : '';
   return (
     <div
