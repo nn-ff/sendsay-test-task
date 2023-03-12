@@ -156,7 +156,6 @@ export const calculatorSlice = createSlice({
             state.items.binaryOperatorValue = action.payload;
           }
         } else {
-          console.log('??');
           state.items.upperDisplay = state.items.leftValue + ' ' + action.payload;
         }
       }

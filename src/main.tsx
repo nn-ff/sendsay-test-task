@@ -10,9 +10,3 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <App />
   </Provider>,
 );
-
-<div className="test">
-  <div>
-    <div></div>
-  </div>
-</div>;
