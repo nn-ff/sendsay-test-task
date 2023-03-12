@@ -13,6 +13,7 @@ export const calculatorSlice = createSlice({
   initialState,
   reducers: {
     displayAction: (state, action: PayloadAction<string>) => {
+      if (action.payload === ',' && state.items.display.length < 1) return;
       if (state.items.operand) {
         state.items.display = '';
         state.items.operand = false;
@@ -37,6 +38,11 @@ export const calculatorSlice = createSlice({
       }
     },
     operandAction: (state, action: PayloadAction<string>) => {
+      // if (state.items.display === '0' && action.payload === '/') {
+      //   state.items.display = 'Не определено';
+      //   state.items.upperDisplay = '';
+      //   state.items.operand = false;
+      // }
       if (state.items.display === 'Не определено') {
         return;
       }
@@ -48,6 +54,7 @@ export const calculatorSlice = createSlice({
         state.items.display = state.items.display.replace(',', '.');
         state.items.upperDisplay = state.items.upperDisplay.replace(',', '.');
       }
+
       if (
         ['+', '-', '*', '/', '='].includes(state.items.upperDisplay.slice(-1)) &&
         !state.items.operand
@@ -56,13 +63,14 @@ export const calculatorSlice = createSlice({
           if (state.items.upperDisplay.includes('=')) {
             state.items.upperDisplay = `${String(
               state.items.display + ' ' + state.items.operandValue,
-            )} =`;
+            ).replaceAll('.', ',')} =`;
           } else {
             state.items.upperDisplay = `${String(
               state.items.upperDisplay.slice(0, -1) + ' ' + state.items.operandValue,
             )} =`;
           }
         } else {
+          console.log('this?');
           switch (state.items.upperDisplay.slice(-1)) {
             case '+':
               state.items.upperDisplay = `${String(
@@ -87,6 +95,12 @@ export const calculatorSlice = createSlice({
               )} ${action.payload}`.replace('.', ',');
               break;
             case '/':
+              if (+state.items.display === 0) {
+                state.items.upperDisplay = '';
+                state.items.operand = false;
+                state.items.display = 'Не определено';
+                return;
+              }
               state.items.upperDisplay = `${String(
                 Math.round(
                   (+state.items.upperDisplay.replace('/', '') / +state.items.display) * 1e15,
@@ -110,35 +124,58 @@ export const calculatorSlice = createSlice({
         } else if (action.payload === '=') {
           switch (state.items.operandValue.slice(0, 1)) {
             case '/':
+              if (+state.items.display === 0) {
+                state.items.upperDisplay = '';
+                state.items.operand = false;
+                state.items.display = 'Не определено';
+                return;
+              }
               state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') /
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              ).replace('.', ',');
+                +state.items.upperDisplay
+                  .replace(`${state.items.operandValue} =`, '')
+                  .replaceAll(',', '.') /
+                  +state.items.operandValue
+                    .replace(state.items.operandValue.slice(0, 1), '')
+                    .replaceAll(',', '.'),
+              ).replaceAll('.', ',');
               break;
             case '*':
               state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') *
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              ).replace('.', ',');
+                +state.items.upperDisplay
+                  .replace(`${state.items.operandValue} =`, '')
+                  .replaceAll(',', '.') *
+                  +state.items.operandValue
+                    .replace(state.items.operandValue.slice(0, 1), '')
+                    .replaceAll(',', '.'),
+              ).replaceAll('.', ',');
               break;
             case '-':
               state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') -
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              ).replace('.', ',');
+                +state.items.upperDisplay
+                  .replace(`${state.items.operandValue} =`, '')
+                  .replaceAll(',', '.') -
+                  +state.items.operandValue
+                    .replace(state.items.operandValue.slice(0, 1), '')
+                    .replaceAll(',', '.'),
+              ).replaceAll('.', ',');
               break;
             case '+':
               state.items.display = String(
-                +state.items.upperDisplay.replace(`${state.items.operandValue} =`, '') +
-                  +state.items.operandValue.replace(state.items.operandValue.slice(0, 1), ''),
-              ).replace('.', ',');
+                +state.items.upperDisplay
+                  .replace(`${state.items.operandValue} =`, '')
+                  .replaceAll(',', '.') +
+                  +state.items.operandValue
+                    .replace(state.items.operandValue.slice(0, 1), '')
+                    .replaceAll(',', '.'),
+              ).replaceAll('.', ',');
               break;
           }
         } else {
           state.items.display = state.items.upperDisplay
             .replace(state.items.upperDisplay.slice(-1), '')
-            .replace('.', ',');
+            .replaceAll('.', ',');
         }
+
         state.items.operand = true;
       } else {
         state.items.upperDisplay = `${state.items.display} ${action.payload}`.replace('.', ',');

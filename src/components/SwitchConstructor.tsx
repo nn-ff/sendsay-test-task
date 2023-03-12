@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { FC } from 'react';
 import { useAppDispatch } from '../hooks/useAppDispatch';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { resetAction } from '../store/slices/calculatorSlice';
 import { setRunTime } from '../store/slices/runTimeSlice';
 
-const SwitchConstructor = () => {
+const SwitchConstructor: FC = () => {
   const dispatch = useAppDispatch();
   const runtime = useAppSelector((state) => state.runTimeSlice.items.runtime);
 

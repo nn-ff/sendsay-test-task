@@ -4,19 +4,19 @@ import { useAppSelector } from '../hooks/useAppSelector';
 import { operandAction } from '../store/slices/calculatorSlice';
 import { DisplayProps } from './Display';
 
-const Operators: FC<DisplayProps> = ({ draggable, side }) => {
+const Operators: FC<DisplayProps> = ({ side }) => {
   const dispatch = useAppDispatch();
-  const style = side === 'right' ? 'right_side' : '';
   const item = useAppSelector((state) => state.constructorSlice.items);
   const isDraggable = item.find((obj) => obj.id === 'operators')?.draggable;
   const runtime = useAppSelector((state) => state.runTimeSlice.items.runtime);
   const operation = ['/', '*', '-', '+'];
+  const styleSide = side === 'right' ? 'right_side' : '';
 
   return (
     <div
-      className={`sidebar-operators ${runtime ? 'runtime_disable_drag' : 'draggable'} ${
+      className={`sidebar-operators ${runtime ? 'runtime_disable_drag' : ''} ${
         !isDraggable && side === 'left' ? 'not_active' : ''
-      } ${style}`}>
+      } ${styleSide}`}>
       <div className="sidebar-operators__content">
         {operation.map((arr) => {
           return (

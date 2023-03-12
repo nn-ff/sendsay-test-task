@@ -31,65 +31,66 @@ const App = () => {
   const runtime = useAppSelector((state) => state.runTimeSlice.items.runtime);
   const dragSensor = useAppSelector((state) => state.constructorSlice.items);
   const list: Ilist[] = [
-    { component: <Display draggable side />, id: 'display', draggable: true },
-    { component: <Operators draggable side />, id: 'operators', draggable: true },
-    { component: <Numbers draggable side />, id: 'numbers', draggable: true },
-    { component: <Equal draggable side />, id: 'equal', draggable: true },
+    { component: <Display side />, id: 'display', draggable: true },
+    { component: <Operators side />, id: 'operators', draggable: true },
+    { component: <Numbers side />, id: 'numbers', draggable: true },
+    { component: <Equal side />, id: 'equal', draggable: true },
   ];
 
   const constructorList: Ilist[] = [];
-  const [todos, setActive] = useState(list);
-  const [runTimeList, setRunTimeList] = useState(constructorList);
+  const [sidebarList, setSidebarList] = useState<Ilist[]>(list);
+  const [runTimeList, setRunTimeList] = useState<Ilist[]>(constructorList);
+  const [holder, setHolder] = useState<number>(0);
+  const [dragStart, setDragStart] = useState<boolean>(false);
+  const [globalDrag, setGlobalDrag] = useState<boolean>(false);
 
   const DragEndHandle = (result: DropResult) => {
     setGlobalDrag(false);
     setDragStart(false);
     const { source, destination, draggableId } = result;
 
-    if (!destination) return;
-    if (destination.droppableId === 'List') return;
-    if (destination.droppableId === source.droppableId && destination.index === source.index)
+    if (
+      !destination ||
+      destination.droppableId === 'List' ||
+      (destination.droppableId === source.droppableId && destination.index === source.index)
+    ) {
       return;
-    let add;
-    let active = todos;
-    let complete = runTimeList;
+    }
+
+    let add: Ilist;
+    let active: Ilist[] = sidebarList;
+    let complete: Ilist[] = runTimeList;
 
     if (source.droppableId === 'List') {
-      add = active[source.index];
-      active.splice(source.index, 1);
+      add = active.splice(source.index, 1)[0];
     } else {
-      add = complete[source.index];
-      complete.splice(source.index, 1);
+      add = complete.splice(source.index, 1)[0];
     }
 
     if (destination.droppableId === 'List') {
       active.splice(destination.index, 0, add);
     } else {
-      let custom;
-      if (
-        complete.find((obj) => obj.id === 'display') ||
-        complete.find((obj) => obj.id === 'display-copy')
-      ) {
-        custom =
-          draggableId !== 'display' && destination.index === 0
-            ? destination.index + 1
-            : destination.index;
+      let customIndex;
+      const hasDisplayCopy = complete.some((obj) => obj.id === 'display-copy');
+
+      if (hasDisplayCopy && draggableId !== 'display' && destination.index === 0) {
+        customIndex = destination.index + 1;
       } else {
-        custom = draggableId === 'display' ? 0 : destination.index;
+        customIndex = draggableId === 'display' ? 0 : destination.index;
       }
-      draggableId !== 'display' && destination.index === 0
-        ? destination.index + 1
-        : destination.index;
+
       if (source.droppableId === 'List' && destination.droppableId === 'ConstructorList') {
         active.splice(source.index, 0, { ...add, draggable: false });
         dispatch(setDragState({ id: draggableId, draggable: false }));
-        complete.splice(custom, 0, { ...add, id: add.id + '-copy' });
+
+        const copyId = add.id + '-copy';
+        complete.splice(customIndex, 0, { ...add, id: copyId });
       } else {
-        complete.splice(custom, 0, add);
+        complete.splice(customIndex, 0, add);
       }
     }
 
-    setActive(active);
+    setSidebarList(active);
     setRunTimeList(complete);
   };
 
@@ -120,59 +121,55 @@ const App = () => {
     dispatch(setDragState({ id: obj.id.replace('-copy', ''), draggable: true }));
   };
 
-  const onDragUpdateHandle = (e: DragUpdate) => {
-    if (e.destination?.droppableId === 'ConstructorList') {
-      if (e.draggableId === 'display') {
+  const onDragUpdateHandle = (result: DragUpdate) => {
+    const { destination, source, draggableId } = result;
+    if (destination?.droppableId === 'ConstructorList') {
+      if (draggableId === 'display') {
         setDragStart(true);
-
         setHolder(-1);
         return;
       }
       setDragStart(true);
-      if (typeof e?.destination?.index !== 'undefined') {
-        if (e.destination.index === 0) {
-          if (runTimeList.find((obj) => obj.id === 'display-copy')) {
+
+      if (typeof destination?.index !== 'undefined') {
+        if (destination.index === 0) {
+          if (runTimeList.some((obj) => obj.id === 'display-copy')) {
             setHolder(0);
             return;
-          } else {
           }
         }
-        if (e.destination.index === e.source.index - 1) {
-          setHolder(e.destination.index - 1);
+        if (destination.index === source.index - 1) {
+          setHolder(destination.index - 1);
         } else {
-          if (!runTimeList.find((obj) => obj.id === 'display-copy') && e.destination.index === 0) {
+          if (!runTimeList.some((obj) => obj.id === 'display-copy') && destination.index === 0) {
             setHolder(-1);
           } else {
-            e.source.index === e.destination.index
-              ? setHolder(e.destination.index - 1)
-              : e.destination.index === 1 && e.source.index === 3
+            source.index === destination.index
+              ? setHolder(destination.index - 1)
+              : destination.index === 1 && source.index === 3
               ? setHolder(0)
-              : setHolder(e.destination.index);
+              : setHolder(destination.index);
           }
         }
       } else {
-        setHolder(e.source.index - 1);
-      }
-      if (e.destination === null && e.source.droppableId === 'List') {
+        setHolder(source.index - 1);
       }
     } else {
       setDragStart(false);
     }
   };
-  const onDragStartHandle = (e: DragStart) => {
+  const onDragStartHandle = (result: DragStart) => {
+    const { source } = result;
     setGlobalDrag(true);
-    if (e.source.droppableId === 'List') {
+    if (source.droppableId === 'List') {
       setDragStart(true);
       return;
     }
-    if (e.source.droppableId === 'ConstructorList') {
-      setHolder(e?.source?.index - 1);
+    if (source.droppableId === 'ConstructorList') {
+      setHolder(source?.index - 1);
       setDragStart(true);
     }
   };
-  const [holder, setHolder] = useState(0);
-  const [dragStart, setDragStart] = useState(false);
-  const [globalDrag, setGlobalDrag] = useState(false);
 
   const styles = {
     cursor: globalDrag ? 'move' : 'auto',
@@ -192,7 +189,7 @@ const App = () => {
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className="sidebar-content">
-                    {todos.map((obj, index) => {
+                    {sidebarList.map((obj, index) => {
                       return (
                         <Draggable
                           key={obj.id}
@@ -234,25 +231,25 @@ const App = () => {
                 {(provided, snapshot) => (
                   <div
                     className={`sidebar-constuctor ${
-                      dragSensor.find((obj) => obj.draggable === false)
+                      dragSensor.some((obj) => obj.draggable === false)
                         ? 'not_active_constructor'
                         : ''
                     }`}
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     style={{
-                      backgroundColor: dragSensor.find((obj) => obj.draggable === false)
+                      backgroundColor: dragSensor.some((obj) => obj.draggable === false)
                         ? 'transparent'
                         : snapshot.isDraggingOver
                         ? '#F0F9FF'
                         : 'transparent',
                     }}>
-                    {!runTimeList.find((obj) => obj.id === 'display-copy') &&
+                    {!runTimeList.some((obj) => obj.id === 'display-copy') &&
                       holder === -1 &&
                       dragStart &&
-                      !dragSensor.find((obj) => obj.draggable === false) === false && (
+                      !dragSensor.some((obj) => obj.draggable === false) === false && (
                         <svg
-                          style={{ position: 'absolute', left: -5, top: -2, zIndex: 5 }}
+                          className="draggable-holder__top"
                           width="250"
                           height="6"
                           viewBox="0 0 250 6"
@@ -273,41 +270,31 @@ const App = () => {
                           draggableId={obj.id}
                           index={index}>
                           {(provided, snapshot) => (
-                            <>
-                              <div
-                                onDoubleClick={!runtime ? () => onClickRemove(obj) : undefined}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                ref={provided.innerRef}
-                                style={getStyle(provided.draggableProps.style, snapshot, 'right')}>
-                                {React.cloneElement(obj.component, {
-                                  draggable: obj.draggable,
-                                  side: 'right',
-                                })}
-                                {dragStart && index === holder ? (
-                                  <svg
-                                    style={{ position: 'absolute', left: -5, bottom: -1 }}
-                                    width="250"
-                                    height="6"
-                                    viewBox="0 0 250 6"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM249.887 3L247 0.113249L244.113 3L247 5.88675L249.887 3ZM3 3.5H247V2.5H3V3.5Z"
-                                      fill="#5D5FEF"
-                                    />
-                                  </svg>
-                                ) : null}
-                              </div>
-                              {/* {snapshot.isDragging && (
-                                <div className="drag-clone">
-                                  {React.cloneElement(obj.component, {
-                                    draggable: obj.draggable,
-                                    side: 'right',
-                                  })}
-                                </div>
-                              )} */}
-                            </>
+                            <div
+                              onDoubleClick={!runtime ? () => onClickRemove(obj) : undefined}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              ref={provided.innerRef}
+                              style={getStyle(provided.draggableProps.style, snapshot, 'right')}>
+                              {React.cloneElement(obj.component, {
+                                draggable: obj.draggable,
+                                side: 'right',
+                              })}
+                              {dragStart && index === holder ? (
+                                <svg
+                                  className="draggable-holder"
+                                  width="250"
+                                  height="6"
+                                  viewBox="0 0 250 6"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM249.887 3L247 0.113249L244.113 3L247 5.88675L249.887 3ZM3 3.5H247V2.5H3V3.5Z"
+                                    fill="#5D5FEF"
+                                  />
+                                </svg>
+                              ) : null}
+                            </div>
                           )}
                         </Draggable>
                       );

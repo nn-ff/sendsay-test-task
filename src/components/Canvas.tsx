@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import Constructor from './Constructor';
+
 import SwitchConstructor from './SwitchConstructor';
 
 interface CanvasProps {
