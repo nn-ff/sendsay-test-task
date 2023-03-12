@@ -1,0 +1,55 @@
+.sidebar_operators {
+  width: 240px;
+  height: 56px;
+  background: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06), 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.runtime_disable__drag {
+  cursor: auto;
+}
+
+.right_side {
+  box-shadow: none;
+}
+
+.not_active {
+  box-shadow: none;
+  border-radius: none;
+  opacity: 0.4;
+}
+
+.sidebar_operators__content {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.sidebar_operators__content button {
+  background: #ffffff;
+  border: 1px solid #e2e3e5;
+  border-radius: 6px;
+  width: 52px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 15px;
+  font-style: normal;
+  font-family: "Inter", sans-serif;
+  align-items: center;
+}
+.number_active:hover {
+  cursor: pointer;
+  border: 2px solid #5d5fef;
+}
+
+.number_deactive {
+  cursor: inherit;
+}

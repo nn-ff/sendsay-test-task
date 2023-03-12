@@ -80,6 +80,7 @@ export const calculatorSlice = createSlice({
           state.items.leftValue = state.items.display;
         } else {
           if (state.items.equalUsed && state.items.rightValue !== '') {
+            /* empty */
           } else {
             state.items.rightValue = state.items.display;
           }

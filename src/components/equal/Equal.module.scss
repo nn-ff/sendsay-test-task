@@ -1,0 +1,46 @@
+.sidebar_equal {
+  width: 240px;
+  height: 72px;
+  background: #ffffff;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.06), 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.not_active {
+  box-shadow: none;
+  border-radius: none;
+  opacity: 0.4;
+}
+
+.right_side {
+  box-shadow: none;
+}
+
+.sidebar_equal__content {
+  width: 232px;
+  height: 64px;
+  background: #5d5fef;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Inter", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 15px;
+  color: #ffffff;
+}
+
+.number_active:hover {
+  cursor: pointer;
+  border: 2px solid #5d5fef;
+}
+
+.number_deactive {
+  cursor: inherit;
+}

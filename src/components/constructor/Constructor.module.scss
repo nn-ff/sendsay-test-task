@@ -1,0 +1,41 @@
+.sidebar_constuctor__content {
+  width: 243px;
+  height: 448px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar_constructor__placeholder {
+  position: absolute;
+  text-align: center;
+}
+
+.sidebar_constuctor__blue {
+pointer-events: none;
+width: 127px;
+height: 17px;
+font-family: 'Inter', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 17px;
+text-align: center;
+color: #5D5FEF;
+margin-bottom: 4px;
+margin-top: 7px;
+}
+
+.sidebar_constuctor__bottom {
+pointer-events: none;
+height: 30px;
+font-family: 'Inter', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 15px;
+text-align: center;
+color: #6B7280;
+}

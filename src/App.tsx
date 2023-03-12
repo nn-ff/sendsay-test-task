@@ -1,42 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   DragDropContext,
   Draggable,
-  DraggableStateSnapshot,
-  DraggingStyle,
   DragStart,
   DragUpdate,
   Droppable,
   DropResult,
-  NotDraggingStyle,
 } from 'react-beautiful-dnd';
-import Canvas from './components/Canvas';
-import Constructor from './components/Constructor';
-import Display from './components/Display';
-import Equal from './components/Equal';
-import Numbers from './components/Numbers';
-import Operators from './components/Operators';
-import Sidebar from './components/Sidebar';
+import { BinaryOperators } from './components/binaryOperators';
+import { Canvas } from './components/canvas';
+import { Constructor } from './components/constructor';
+import { Display } from './components/display';
+import { Equal } from './components/equal';
+import { Numbers } from './components/numbers';
+import { Sidebar } from './components/sidebar';
+import { EIcon, SvgIcon } from './components/svgicon';
+import { SVG_COLOR } from './constants';
+import { GLOBAL_COLOR } from './constants/globalColor';
 import { useAppDispatch } from './hooks/useAppDispatch';
 import { useAppSelector } from './hooks/useAppSelector';
 import { setDragState } from './store/slices/constructorSlice';
+import { getStyle } from './utils/getStyle';
 
 interface Ilist {
   component: JSX.Element;
   id: string;
   draggable: boolean;
 }
+
+const list: Ilist[] = [
+  { component: <Display />, id: 'display', draggable: true },
+  { component: <BinaryOperators />, id: 'operators', draggable: true },
+  { component: <Numbers />, id: 'numbers', draggable: true },
+  { component: <Equal />, id: 'equal', draggable: true },
+];
+
 const App = () => {
   const dispatch = useAppDispatch();
   const runtime = useAppSelector((state) => state.runTimeSlice.items.runtime);
   const dragSensor = useAppSelector((state) => state.constructorSlice.items);
-  const list: Ilist[] = [
-    { component: <Display side />, id: 'display', draggable: true },
-    { component: <Operators side />, id: 'operators', draggable: true },
-    { component: <Numbers side />, id: 'numbers', draggable: true },
-    { component: <Equal side />, id: 'equal', draggable: true },
-  ];
-
   const constructorList: Ilist[] = [];
   const [sidebarList, setSidebarList] = useState<Ilist[]>(list);
   const [runTimeList, setRunTimeList] = useState<Ilist[]>(constructorList);
@@ -58,8 +60,8 @@ const App = () => {
     }
 
     let add: Ilist;
-    let active: Ilist[] = sidebarList;
-    let complete: Ilist[] = runTimeList;
+    const active: Ilist[] = sidebarList;
+    const complete: Ilist[] = runTimeList;
 
     if (source.droppableId === 'List') {
       add = active.splice(source.index, 1)[0];
@@ -94,28 +96,6 @@ const App = () => {
     setRunTimeList(complete);
   };
 
-  function getStyle(
-    style: DraggingStyle | NotDraggingStyle | undefined,
-    snapshot: DraggableStateSnapshot,
-    side: string,
-  ) {
-    if (!snapshot.isDragging) return;
-    if (!snapshot.isDropAnimating) {
-      return {
-        ...style,
-        opacity: snapshot.isDragging && side === 'left' ? '0.7' : '1',
-        boxShadow:
-          side === 'right' && snapshot.isDragging
-            ? '0px 2px 4px rgba(0, 0, 0, 0.06), 0px 4px 6px rgba(0, 0, 0, 0.1)'
-            : 'none',
-        borderRadius: side === 'right' && snapshot.isDragging ? '4px' : 0,
-      };
-    }
-    return {
-      ...style,
-      transitionDuration: `0.001s`,
-    };
-  }
   const onClickRemove = (obj: Ilist) => {
     const removeItem = runTimeList.filter((item) => item.id !== obj.id);
     setRunTimeList(removeItem);
@@ -177,7 +157,7 @@ const App = () => {
   };
   return (
     <div className="wrapper">
-      <div className={`calculator_wrapper`} style={styles}>
+      <div className="calculator_wrapper" style={styles}>
         <DragDropContext
           onDragStart={onDragStartHandle}
           onDragUpdate={onDragUpdateHandle}
@@ -242,25 +222,19 @@ const App = () => {
                       backgroundColor: dragSensor.some((obj) => obj.draggable === false)
                         ? 'transparent'
                         : snapshot.isDraggingOver
-                        ? '#F0F9FF'
+                        ? GLOBAL_COLOR.aliceBlue
                         : 'transparent',
                     }}>
                     {!runTimeList.some((obj) => obj.id === 'display-copy') &&
                       holder === -1 &&
                       dragStart &&
                       !dragSensor.some((obj) => obj.draggable === false) === false && (
-                        <svg
-                          className="draggable-holder__top"
-                          width="250"
-                          height="6"
-                          viewBox="0 0 250 6"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM249.887 3L247 0.113249L244.113 3L247 5.88675L249.887 3ZM3 3.5H247V2.5H3V3.5Z"
-                            fill="#5D5FEF"
-                          />
-                        </svg>
+                        <SvgIcon
+                          name={EIcon.Holder}
+                          size={{ width: '250', height: '6' }}
+                          color={SVG_COLOR.blueberry}
+                          className={'draggable-holder__top'}
+                        />
                       )}
                     {runTimeList.map((obj, index) => {
                       return (
@@ -283,18 +257,12 @@ const App = () => {
                                   side: 'right',
                                 })}
                                 {dragStart && index === holder ? (
-                                  <svg
-                                    className="draggable-holder"
-                                    width="250"
-                                    height="6"
-                                    viewBox="0 0 250 6"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M0.113249 3L3 5.88675L5.88675 3L3 0.113249L0.113249 3ZM249.887 3L247 0.113249L244.113 3L247 5.88675L249.887 3ZM3 3.5H247V2.5H3V3.5Z"
-                                      fill="#5D5FEF"
-                                    />
-                                  </svg>
+                                  <SvgIcon
+                                    name={EIcon.Holder}
+                                    size={{ width: '250', height: '6' }}
+                                    color={SVG_COLOR.blueberry}
+                                    className={'draggable-holder'}
+                                  />
                                 ) : null}
                               </div>
                               {snapshot.isDragging && (
