@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   DragDropContext,
   Draggable,
@@ -125,7 +125,6 @@ const App = () => {
           if (!runTimeList.some((obj) => obj.id === 'display-copy') && destination.index === 0) {
             setHolder(-1);
           } else {
-            console.log('this');
             source.index === destination.index ||
             runTimeList.length === 3 ||
             draggableId === 'operators'
@@ -154,10 +153,7 @@ const App = () => {
       setDragStart(true);
     }
   };
-  useEffect(() => {
-    console.log(holder);
-    console.log(runTimeList.length);
-  }, [holder]);
+
   const styles = {
     cursor: globalDrag ? 'move' : 'auto',
   };
