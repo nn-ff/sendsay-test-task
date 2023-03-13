@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MAX_NUMBERS } from '../../constants';
 
 interface IcalculatorState {
   items: {
@@ -54,11 +55,15 @@ export const calculatorSlice = createSlice({
       if (state.items.display === '0' && action.payload !== '.') {
         state.items.display = '';
       }
-      if (state.items.display.length <= 17) {
+      if (state.items.display.length <= MAX_NUMBERS) {
         state.items.display += action.payload;
       }
     },
     operandAction: (state, action: PayloadAction<string>) => {
+      if (state.items.display.endsWith('.')) {
+        state.items.display = state.items.display.replace('.', '');
+        console.log(state.items.display);
+      }
       if (state.items.display === 'Не определено') {
         return;
       }
