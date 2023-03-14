@@ -62,7 +62,6 @@ export const calculatorSlice = createSlice({
     operandAction: (state, action: PayloadAction<string>) => {
       if (state.items.display.endsWith('.')) {
         state.items.display = state.items.display.replace('.', '');
-        console.log(state.items.display);
       }
       if (state.items.display === 'Не определено') {
         return;
